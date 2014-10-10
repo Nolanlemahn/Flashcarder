@@ -1,0 +1,7 @@
+errors.txt
+tmp/
+log.txt
+traceback.txt
+*.rpyc
+*.rpyb
+game/saves/
