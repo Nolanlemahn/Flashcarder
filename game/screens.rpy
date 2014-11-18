@@ -193,6 +193,7 @@ screen main_menu:
 
         textbutton _("Start Game") action Start()
         textbutton _("Load Game") action ShowMenu("load")
+        textbutton "Update" action ui.callsinnewcontext("pre_update")
         textbutton _("Preferences") action ShowMenu("preferences")
         textbutton _("Help") action Help()
         textbutton _("Quit") action Quit(confirm=False)
@@ -558,4 +559,8 @@ init -2:
         selected_idle_color "#cc08"
         selected_hover_color "#cc0"
         insensitive_color "#4448"
-
+        
+label pre_update:
+    scene bg mainmenu
+    $ updater.update("http://projectexist.net/fc_updates/updates.json", restart=True)
+    return

@@ -28,6 +28,12 @@ init 1 python:
         cardDir = os.path.abspath(largeDir + fileName)
         rawData = file(cardDir).read().decode("utf-8")
         return rawData.split("\n")
+    
+    def dpRight(packs):
+        for pack in packs:
+            if("GAT110" in pack):
+                return " All GAT110 Flashcards are © Copyright 2014 DigiPen Institute of Technology."
+        return ""
         
     def askPack(packs):
         menu_answers = []
@@ -37,7 +43,8 @@ init 1 python:
             renpy.say(None, "No packs detected. Install packs.")
             renpy.full_restart()
         else:
-            q = [("Pick a pack.", None)]
+            renpy.say(None, "Click to continue and pick a pack." + dpRight(packs))
+            q = []
             q.extend(menu_answers)
             return menu(q)
             
@@ -56,6 +63,12 @@ init 1 python:
             return "any_of"
         elif "[image]" in answer:
             return "image"
+        elif "[combo]" in answer:
+            return "combo"
+        elif "[at_least]" in answer:
+            return "at_least"
+        elif "[any_of+formula]" in answer:
+            return "any_of+formula"
         else:
             return None
         
@@ -65,12 +78,28 @@ init 1 python:
             fullAnswers = answer.split('/')
             fullAnswers.remove("[any_of]")
             return decomp(fullAnswers)
+        if(mode == "any_of+formula"):
+            fullAnswers = answer.split("BREAK")
+            fullAnswers.remove("[any_of+formula]")
+            return decomp(fullAnswers)
         if(mode == "image"):
             newAnswer = answer.replace("[image]/", "")#remove image tag
             imageWithAnswer = newAnswer.split(']')#[image location, answers
             imageLoc = imageWithAnswer[0].replace("[", "")#remove left bracket
             onlyAnswers = imageWithAnswer[1].split('/')#just the answers
             fullAnswers.append(imageLoc)
+            fullAnswers.extend(onlyAnswers)
+            return fullAnswers
+        if(mode == "combo"):
+            fullAnswers = answer.split('/')
+            fullAnswers.remove("[combo]")
+            return decomp(fullAnswers)
+        if(mode == "at_least"):
+            newAnswer = answer.replace("[at_least]/", "")#remove at_least tag
+            numberWithAnswers = newAnswer.split(']')#[number, answers
+            number = numberWithAnswers[0].replace("[", "")#remove left bracket
+            onlyAnswers = numberWithAnswers[1].split('/')#just the answers
+            fullAnswers.append(number)
             fullAnswers.extend(onlyAnswers)
             return fullAnswers
         else:
@@ -85,12 +114,26 @@ init 1 python:
     def answerCheck(answer, listRight, mode):
         poolSimp = []
         answerSimp = (str(answer).translate(None, ',. ')).lower()
-        if(mode == "any_of" or mode == "image"):
+        if(mode == "any_of" or mode == "image" or mode == "any_of+formula"):
             poolSimp = decomp(listRight)
             if answerSimp in poolSimp:
                 return True
             else:
                 return False
+        elif(mode == "combo"):
+            poolSimp = decomp(listRight)
+            for neededAnswer in poolSimp:
+                if(not(neededAnswer in answerSimp)):
+                    return False
+            return True
+        elif(mode == "at_least"):#the number is 0
+            numberHave = 0
+            numberNeeded = int(listRight.pop(0))
+            poolSimp = decomp(listRight)
+            for neededAnswer in poolSimp:
+                if((neededAnswer in answerSimp)):
+                    numberHave += 1
+            return (numberHave >= numberNeeded)
         else:
             listRight = (str(listRight).translate(None, ',. ')).lower()
             if(answerSimp == listRight):
@@ -107,13 +150,13 @@ init 1 python:
             rightAnswer = modeCheck(line[1], answerMode)
             if(answerMode == "image"):
                 renpy.show("modal", at_list=[truecenter], what=Image(largeDir+rightAnswer[0]), tag="modal")
-                rightAnswer.pop(0)
+                rightAnswer.pop(0)#take out the image
             userAnswer = renpy.input(line[0])
             if(answerCheck(userAnswer, rightAnswer, answerMode)):
                 renpy.say(None, "That was right! \"" + userAnswer + "\" was close enough.")
                 renpy.hide("modal")
             else:
-                if(answerMode == "any_of" or answerMode == "image"):
+                if(answerMode == "any_of" or answerMode == "image" or answerMode == "combo" or answerMode == "at_least"):
                     rightAnswer = arraySplit(rightAnswer)
                 renpy.say(None, "That was wrong... the rignt answer was " + "\"" + rightAnswer + "\".")
                 renpy.hide("modal")
