@@ -20,6 +20,13 @@ init 1 python:
         if not os.path.exists(largeDir):
             os.makedirs(largeDir)
     
+    def parseAllPacks(parseList):
+        theseLines = []
+        for singlePack in parseList:
+            grabbedPack = listPack("/" + singlePack)
+            theseLines.extend(unifyList(grabbedPack))
+        return theseLines
+    
     def getCards():
         cardDir = os.path.abspath(largeDir)
         return [ f for f in listdir(cardDir) if (isfile(join(cardDir,f)) and (f.endswith('.rsv')))]
@@ -110,6 +117,43 @@ init 1 python:
         for item in list:
             newList.append((str(item).translate(None, ',. ')).lower())
         return newList
+    
+    def halfcomp(list):
+        newList = []
+        for item in list:
+            newList.append((str(item)) + " ")
+        return newList
+    
+    def removeMode(answer, mode):
+        fullAnswers = []
+        if(mode == "any_of"):
+            fullAnswers = answer.split('/')
+            fullAnswers.remove("[any_of]")
+            return halfcomp(fullAnswers)
+        if(mode == "any_of+formula"):
+            fullAnswers = answer.split("BREAK")
+            fullAnswers.remove("[any_of+formula]")
+            return halfcomp(fullAnswers)
+        if(mode == "image"):
+            newAnswer = answer.replace("[image]/", "")#remove image tag
+            imageWithAnswer = newAnswer.split(']')#[image location, answers
+            imageLoc = imageWithAnswer[0].replace("[", "")#remove left bracket
+            onlyAnswers = imageWithAnswer[1].split('/')#just the answers
+            fullAnswers.extend(onlyAnswers)
+            return halfcomp(fullAnswers)
+        if(mode == "combo"):
+            fullAnswers = answer.split('/')
+            fullAnswers.remove("[combo]")
+            return halfcomp(fullAnswers)
+        if(mode == "at_least"):
+            newAnswer = answer.replace("[at_least]/", "")#remove at_least tag
+            numberWithAnswers = newAnswer.split(']')#[number, answers
+            number = numberWithAnswers[0].replace("[", "")#remove left bracket
+            onlyAnswers = numberWithAnswers[1].split('/')#just the answers
+            fullAnswers.extend(onlyAnswers)
+            return halfcomp(fullAnswers)
+        else:
+            return answer
         
     def answerCheck(answer, listRight, mode):
         poolSimp = []
@@ -149,7 +193,7 @@ init 1 python:
             answerMode = getMode(line[1])
             rightAnswer = modeCheck(line[1], answerMode)
             if(answerMode == "image"):
-                renpy.show("modal", at_list=[truecenter], what=Image(largeDir+rightAnswer[0]), tag="modal")
+                renpy.show("modal", at_list=[truecenter], what=Image((os.path.abspath(largeDir+rightAnswer[0])).replace('\\', '/')), tag="modal")
                 rightAnswer.pop(0)#take out the image
             userAnswer = renpy.input(line[0])
             if(answerCheck(userAnswer, rightAnswer, answerMode)):
@@ -157,8 +201,10 @@ init 1 python:
                 renpy.hide("modal")
             else:
                 if(answerMode == "any_of" or answerMode == "image" or answerMode == "combo" or answerMode == "at_least"):
-                    rightAnswer = arraySplit(rightAnswer)
-                renpy.say(None, "That was wrong... the rignt answer was " + "\"" + rightAnswer + "\".")
+                    unformatAnswer = ', '.join(removeMode(line[1], answerMode))
+                else:
+                    unformatAnswer = rightAnswer
+                renpy.say(None, "That was wrong... the right answer was along the lines of " + "\"" + unformatAnswer + "\".")
                 renpy.hide("modal")
                 leftoverPack.append(line)
         return leftoverPack

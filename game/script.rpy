@@ -20,6 +20,8 @@ label start2:
             jump start3
         "Show me the folder again":
             jump start2
+        "Shut up! Test me on everything!":
+            jump start4
             
 label start3:
     $ list = getCards()
@@ -50,3 +52,21 @@ label start3:
         nvln "You need to review: [wrongOnce]"
     else:
         "You should be OK"
+    return
+
+label start4:
+    $ list = getCards()
+    $ getPacks = True
+    $ packSet = []
+    $ wrongOnce = []
+    $ packLines = parseAllPacks(list)
+    while(len(packLines) != 0):
+        $ shufflePack(packLines)
+        $ packLines =  quizMe(packLines)
+        $ wrongOnce = arrayMerge(wrongOnce, packLines)
+    $ wrongOnce = arraySplit(wrongOnce)
+    if(len(wrongOnce) != 0):
+        nvln "You need to review: [wrongOnce]"
+    else:
+        "You should be OK"
+    return
