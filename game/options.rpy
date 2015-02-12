@@ -29,7 +29,7 @@ init -1 python hide:
     # These control the name and version of the game, that are reported
     # with tracebacks and other debugging logs.
     config.name = "Flashcarder"
-    config.version = "v0.1.4_(0094)"
+    config.version = "v0.1.5_(0099)"
 
 
     #########################################

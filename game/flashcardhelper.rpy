@@ -53,7 +53,7 @@ init 1 python:
             renpy.say(None, "Click to continue and pick a pack." + dpRight(packs))
             q = []
             q.extend(menu_answers)
-            return menu(q)
+            return menu(q, screen="barpack")
             
     def unifyList(pack):
         newPack = []
@@ -194,7 +194,7 @@ init 1 python:
             rightAnswer = modeCheck(line[1], answerMode)
             if(answerMode == "image"):
                 renpy.show("modal", at_list=[truecenter], what=Image((os.path.abspath(largeDir+rightAnswer[0])).replace('\\', '/')), tag="modal")
-                rightAnswer.pop(0)#take out the image
+                rightAnswer.remove(rightAnswer[0])#take out the image
             userAnswer = renpy.input(line[0])
             if(answerCheck(userAnswer, rightAnswer, answerMode)):
                 renpy.say(None, "That was right! \"" + userAnswer + "\" was close enough.")
@@ -220,3 +220,35 @@ init 1 python:
         for question in arr:
             split = split + question + "\n"
         return split
+
+init python:
+    adj=ui.adjustment()
+        
+screen barpack:
+    window:
+        style "menu_window"
+        xalign 0.5
+        ymaximum 400
+        xsize 590
+        side "c r":
+            frame:
+                has viewport:
+                    mousewheel True
+                    draggable True
+                    yinitial 0.0
+                    yadjustment adj
+                vbox:
+                    style "menu"
+                    spacing 2
+                    for caption, action, chosen in items:
+
+                        if action:
+
+                            button:
+                                action action
+                                style "menu_choice_button"
+                                text caption style "menu_choice"
+
+                        else:
+                            text caption style "menu_caption"
+            bar adjustment adj style 'vscrollbar'
