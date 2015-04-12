@@ -99,7 +99,10 @@ init 1 python:
             return fullAnswers
         if(mode == "combo"):
             fullAnswers = answer.split('/')
-            fullAnswers.remove("[combo]")
+            try:
+                fullAnswers.remove("[combo]")
+            except:
+                pass
             return decomp(fullAnswers)
         if(mode == "at_least"):
             newAnswer = answer.replace("[at_least]/", "")#remove at_least tag
@@ -143,7 +146,10 @@ init 1 python:
             return halfcomp(fullAnswers)
         if(mode == "combo"):
             fullAnswers = answer.split('/')
-            fullAnswers.remove("[combo]")
+            try:
+                fullAnswers.remove("[combo]")
+            except:
+                pass
             return halfcomp(fullAnswers)
         if(mode == "at_least"):
             newAnswer = answer.replace("[at_least]/", "")#remove at_least tag
