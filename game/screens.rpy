@@ -193,6 +193,7 @@ screen main_menu:
 
         textbutton _("Start Game") action Start()
         textbutton _("Load Game") action ShowMenu("load")
+        textbutton "Run Newline Fixer" xminimum 300 action ui.callsinnewcontext("eol_change")
         textbutton "Update" action ui.callsinnewcontext("pre_update")
         textbutton _("Preferences") action ShowMenu("preferences")
         textbutton _("Help") action Help()

@@ -1,3 +1,36 @@
+
+init python:
+    def fix_newlines():
+        for root, subdirs, files in os.walk(config.gamedir + "/../"):
+            for file in files:
+                if(file.endswith(".txt") or file.endswith(".rpy")  or file.endswith(".rsv")):
+                    #renpy.say(None, file)
+                    file = os.path.abspath(root + "/" + file)
+                    data = open(file, "rb").read()
+                    newdata = data.replace("\r\n", "\n")
+                    if newdata != data:
+                        f = open(file, "wb")
+                        f.write(newdata)
+                        f.close()
+        return
+    def windowify_newlines():
+        for root, subdirs, files in os.walk(config.gamedir + "/../"):
+            for file in files:
+                if(file.endswith(".txt") or file.endswith(".rpy")  or file.endswith(".rsv")):
+                    #renpy.say(None, file)
+                    file = os.path.abspath(root + "/" + file)
+                    data = open(file, "rb").read()
+                    newdata = data.replace("\r\n", "\n")
+                    if newdata != data:
+                        f = open(file, "wb")
+                        f.write(newdata)
+                        f.close()
+        return
+
+label eol_change:
+    #$ fix_newlines()
+    $ windowify_newlines()
+    return
 #depends on wtf_iorpy_magic
 init:
     image holder = "#f00"
